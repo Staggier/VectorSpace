@@ -43,8 +43,14 @@
             margin: 0;
             box-sizing: border-box;
         }
+        
+        @font-face {
+            font-family: myFont;
+            src: url('/font/kenvector_future_thin.ttf');
+        }
 
         body {
+            font-family: myFont;
             text-align: center;
         }
 
@@ -57,6 +63,10 @@
         a {
             text-decoration: none;
             color: inherit;
+        }
+
+        button {
+            font-family: inherit;
         }
     </style>
 </html>
