@@ -1,12 +1,42 @@
 <html>
     <head>
         <title>Game Project</title>
-        <script src="/script.js"></script>
+        <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+        <script src="/script.js" defer></script>
     </head>
     <body>
-        <canvas width="800" height="500">
+        <canvas width="800" height="500"></canvas>
+        <div id="titleScreen">
+            <h2>Welcome to the Game!</h2>
+            <div id="btns">
+                <button>Start</button>
+                <button>Instructions</button>
+                <button>Credits</button>
+            </div>
+        </div>
+        <div id="instructions">
+            <h2>How to Play:</h2>
+            <p>
+                Escape : Pause / Unpause</br></br>
 
-        </canvas>
+                W /    Up Arrow: Move Up</br>
+                A /  Left Arrow: Move Left</br>
+                S /  Down Arrow: Move Down</br>
+                D / Right Arrow: Move Right</br></br>
+
+                Space Bar / Left-Click : Shoot
+            </p>
+            <button>Back</button>
+        </div>
+        <div id="credits">
+            <h2>Credits:</h2>
+            <p>
+                Code written by: Jordan McIntyre</br></br>
+                Music composed by: TBD</br></br>
+                Art used from: <a href="https://kenney.nl/">Kenney</a>
+            </p>
+            <button>Back</button>
+        </div>
     </body>
     <style>
         * {
@@ -22,6 +52,11 @@
             border: 3px;
             border-color: black;
             border-style: solid;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
         }
     </style>
 </html>
