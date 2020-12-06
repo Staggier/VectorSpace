@@ -13,8 +13,6 @@ class Entity {
     display() {
         var img = new Image(this.w, this.h);
         img.src = this.src;
-
-        context.clearRect(this.x, this.y, this.w, this.h);
         context.drawImage(img, this.x, this.y, this.w, this.h);
     }
 

@@ -2,15 +2,16 @@
     <head>
         <title>Game Project</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="/functions.js" defer></script>
         <script src="/titleScreen.js" defer></script>
+        <script src="/functions.js" defer></script>
         <script src="/entity.js" defer></script>
         <script src="/player.js" defer></script>
         <script src="/enemy.js" defer></script>
+        <script src="/bullet.js" defer></script>
         <script src="/game.js" defer></script>
     </head>
     <body>
-        <canvas width="800" height="500"></canvas>
+        <canvas width="800" height="500" id="slidingBackground"></canvas>
         <div id="titleScreen">
             <h2>Welcome to the Game!</h2>
             <div id="btns">
@@ -59,12 +60,6 @@
             text-align: center;
         }
 
-        canvas {
-            border: 3px;
-            border-color: black;
-            border-style: solid;
-        }
-
         a {
             text-decoration: none;
             color: inherit;
@@ -73,5 +68,24 @@
         button {
             font-family: inherit;
         }
+     
+        canvas {
+            border: 3px;
+            border-color: black;
+            border-style: solid;
+            background: url('/images/purple.png');
+            position: relative;
+            overflow: hidden;
+        }
+
+        @keyframes slide {
+            0% {
+                background-position: 0 0;
+            }
+            100% {
+                background-position: 0 150%;
+            }
+        }
+
     </style>
 </html>
