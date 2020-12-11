@@ -3,26 +3,33 @@ const titleScreen = document.getElementById('titleScreen');
 const instructions = document.getElementById('instructions');
 const credits = document.getElementById('credits');
 
-function changeCursor(element) {
-    $(element).css({'cursor':'url(/images/cursor.png),auto'});
+var buttons = titleScreen.querySelectorAll('button');
+
+function setTitleScreen() {
+    $(document.getElementsByTagName('body')[0]).css({'cursor':'url(./images/cursor.png),auto'});
+
+    $(canvas).css({'animation':'slide 2s linear infinite'});
+    canvas.onanimationiteration = setX;
+
+    canvas.width = 500;
+    canvas.height = 400;
+
+    instructions.hidden = true;
+    credits.hidden = true;
+    titleScreen.hidden = false;
+
+    $('#btns').css({'display':'flex', 'flex-direction':'column','margin':'5% 25% 0 25%'});
 }
 
-canvas.addEventListener('mouseover', () => {
-    changeCursor(canvas);
-});
+function setX() {
+    canvas.style.setProperty('--xPosition', Math.random() * 1024 | 0)
+};
 
-instructions.addEventListener('mouseover', (e) => {
-    changeCursor(e.target);
-})
 
 instructions.querySelector('button').addEventListener('click', () => {
     canvas.hidden = false;
     instructions.hidden = true;
     titleScreen.hidden = false;
-});
-
-credits.addEventListener('mouseover', (e) => {
-    changeCursor(e.target);
 });
 
 credits.querySelector('button').addEventListener('click', () => {
@@ -31,18 +38,13 @@ credits.querySelector('button').addEventListener('click', () => {
     titleScreen.hidden = false;
 });
 
-document.getElementById('btns').addEventListener('mouseover', (e) => {
-    changeCursor(e.target);
-})
 
-var buttons = titleScreen.querySelectorAll('button');
-
-buttons[0].addEventListener('click', () => {
-    $(canvas).css({'margin':'0', 'animation': 'slide 1s linear infinite'});
+buttons[0].addEventListener('click', () => {    
     titleScreen.hidden = true;
     canvas.width = 800;
-    canvas.height = 600;
-    
+    canvas.height = 575;
+
+    $(canvas).css({'margin':'2% 0 0 0'});
     game();
 })
 
@@ -51,7 +53,8 @@ buttons[1].addEventListener('click', (e) => {
     titleScreen.hidden = true;
     instructions.hidden = false;
 
-    $(instructions.querySelector('p')).css({'margin':'10% 0 10% 0'});
+    $(instructions.querySelector('h2')).css({'margin':'10% 0 10% 0'});
+    $(instructions.querySelector('p')).css({'margin':'10% 0 9% 0'});
     $(instructions.querySelector('button')).css({'display':'block', 'margin':'auto', 'width':'50%'});
 });
 
@@ -60,20 +63,9 @@ buttons[2].addEventListener('click', () => {
     titleScreen.hidden = true;
     credits.hidden = false;
 
-    $(credits.querySelector('p')).css({'margin':'10% 0 10% 0'});
+    $(credits.querySelector('h2')).css({'margin':'10% 0 10%'});
+    $(credits.querySelector('p')).css({'margin':'10% 0 14.5% 0'});
     $(credits.querySelector('button')).css({'width':'50%'});
 })
 
-document.addEventListener('DOMContentLoaded', () => {
-    changeCursor(document.getElementsByTagName('html')[0]);
-
-    $(canvas).css({"margin":"5% 0 0 0"});
-
-    canvas.width = 500;
-    canvas.height = 400;
-
-    instructions.hidden = true;
-    credits.hidden = true;
-
-    $('#btns').css({'display':'flex', 'flex-direction':'column','margin':'5% 25% 0 25%'});
-});
+document.addEventListener('DOMContentLoaded', setTitleScreen);

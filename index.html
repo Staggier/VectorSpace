@@ -2,13 +2,14 @@
     <head>
         <title>Game Project</title>
         <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-        <script src="/titleScreen.js" defer></script>
-        <script src="/functions.js" defer></script>
-        <script src="/entity.js" defer></script>
-        <script src="/player.js" defer></script>
-        <script src="/enemy.js" defer></script>
-        <script src="/bullet.js" defer></script>
-        <script src="/game.js" defer></script>
+        <script src="./titleScreen.js" defer></script>
+        <script src="./functions.js" defer></script>
+        <script src="./entity.js" defer></script>
+        <script src="./bullet.js" defer></script>
+        <script src="./shotType.js" defer></script>
+        <script src="./player.js" defer></script>
+        <script src="./enemy.js" defer></script>
+        <script src="./game.js" defer></script>
     </head>
     <body>
         <canvas width="800" height="500" id="slidingBackground"></canvas>
@@ -30,16 +31,17 @@
                 S /  Down Arrow: Move Down</br>
                 D / Right Arrow: Move Right</br></br>
 
-                Space Bar / Left-Click : Shoot
+                Shift: Slow down </br>
+                Space Bar: Toggle Shoot
             </p>
             <button>Back</button>
         </div>
         <div id="credits">
             <h2>Credits:</h2>
             <p>
-                Code written by: Jordan McIntyre</br></br>
-                Music composed by: TBD</br></br>
-                Art used from: <a href="https://kenney.nl/">Kenney</a>
+                Code written by: <a href="https://github.com/Staggier">Jordan McIntyre</br></br>
+                Music composed by: <a href="https://sixumbrellas.bandcamp.com/">Six Umbrellas</a></br></br>
+                Art and Sound effects by: <a href="https://kenney.nl/">Kenney.nl</a>
             </p>
             <button>Back</button>
         </div>
@@ -48,11 +50,12 @@
         * {
             margin: 0;
             box-sizing: border-box;
+            cursor: inherit;
         }
         
         @font-face {
             font-family: myFont;
-            src: url('/font/kenvector_future_thin.ttf');
+            src: url('./font/kenvector_future_thin.ttf');
         }
 
         body {
@@ -66,24 +69,28 @@
         }
 
         button {
-            font-family: inherit;
+            font-family: inherit;  
+            font-size: 20px;      
         }
      
         canvas {
             border: 3px;
             border-color: black;
             border-style: solid;
-            background: url('/images/purple.png');
+            background: url('./images/background.png');
+            background-position: var(--xPosition) 0;
+            margin: 2% 0 0 0;
             position: relative;
             overflow: hidden;
+            --xPosition: 0;
         }
 
         @keyframes slide {
             0% {
-                background-position: 0 0;
+                background-position: var(--xPosition) -100%;
             }
             100% {
-                background-position: 0 150%;
+                background-position: var(--xPosition) 100%;        
             }
         }
 

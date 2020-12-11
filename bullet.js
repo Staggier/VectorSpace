@@ -1,54 +1,36 @@
 class Bullet extends Entity {
-    constructor(x, y, width, height, speed, src, friendly, startPoint, endPoint) {
+    constructor(x, y, friendly, startPoint, endPoint) {
         super();
         this.x = x;
         this.y = y;
-        this.w = width;
-        this.h = height;
-        this.speed = speed;
-        this.src = src
+        this.w = 10;
+        this.h = 15;
+        this.speed = (friendly? 10: 5);
+        this.src = friendly? './images/laserBlue16.png' : './images/laserRed16.png';
         this.friendly = friendly;
         this.startTime = Date.now() / 1000;
         this.endTime = this.startTime + 10;
         this.startPoint = [...startPoint];
         this.endPoint = [...endPoint];
+        this.update;
     }
 
-    linearTime() {
-        let seconds = Date.now() / 1000;
-        return (seconds - this.startTime) / (this.endTime - this.startTime);
-    }
+    assignBehavior(shotType) {
+        this.update = shotType;
+    };
+    
+    display() {
+        let img = new Image(this.w, this.h);
+        img.src = this.src;
 
-    aimedShot() {
-        let angle = Math.atan2(this.endPoint[1] - this.startPoint[1], this.endPoint[0] - this.startPoint[0]);
+        if (!this.friendly) {
+            context.save();
+            context.translate(this.x + (this.w / 2), this.y + this.h / 2);
+            context.rotate(180 * (Math.PI / 180));
+            context.translate(-(this.x + (this.w / 2)), -(this.y + this.h / 2));
+        }
+        context.drawImage(img, this.x, this.y, -this.w, -this.h);
+        context.restore();
+    };
 
-        this.x += this.speed * Math.cos(angle);
-        this.y += this.speed * Math.sin(angle);
-    }
-
-    spiralShot() {
-        let t = Date.now() / 1000;
-        let linearTime = this.linearTime();
-
-        this.velocity.splice(0, 2, 3, 4)
-
-        this.x = this.startPoint[0] + 0.5 * Math.sin(this.startTime + t) * linearTime * 200;
-        this.y = this.startPoint[1] - 0.5 * Math.cos(this.endTime + t) * linearTime * 200;
-    }
-
-    twirlShot() {
-        let t = Date.now() / 1000;
-        let linearTime = this.linearTime();
-
-        this.x = this.startPoint[0] + 40 * Math.sin(this.startTime + t * 2) + linearTime * 300;
-        this.y = this.startPoint[1] - 40 * Math.cos(this.endTime + t * 2) + linearTime * 200;
-    }
-
-    waveShot() {
-        let t = Date.now() / 1000;
-        let linearTime = this.linearTime();
-
-        this.x = this.startPoint[0] + 20 * Math.sin(this.startTime + t * 2) + linearTime * 200;
-        this.y = this.startPoint[1] - 40 * Math.cos(this.endTime + t) + linearTime;
-    }
 }

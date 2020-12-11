@@ -3,15 +3,19 @@ const controller =  {
     down: false,
     left: false,
     right: false,
+    shift: false,
     space: false
 };
 
-window.onkeydown = window.onkeyup = key => {
+function keyPress(key) {
     if (key.code == "Space") {
         if (key.type == 'keyup') {
             startTime = 0;
+            controller.space = !controller.space;
         }
-        controller.space = key.type == 'keydown';
+    }
+    if (key.code == "ShiftLeft" || key.code == "ShiftRight") {
+        controller.shift = key.type == 'keydown';
     }
     if (key.code == "KeyW" || key.code == "ArrowUp") {
         controller.up = key.type == 'keydown';
@@ -28,19 +32,22 @@ window.onkeydown = window.onkeyup = key => {
 };
 
 class Player extends Entity {
-    constructor(x, y, width, height, speed, src, friendly) {
+    constructor(x, y) {
         super();
+        this.numLives = 3;
         this.velocity = [1, 0];
         this.x = x;
         this.y = y;
-        this.w = width;
-        this.h = height;
-        this.speed = speed;
-        this.src = src;
-        this.friendly = friendly;
-        this.bullets = [];
+        this.w = 30;
+        this.h = 30;
+        this.speed = 5;
+        this.src = './images/playerShip2_orange.png';
+        this.friendly = true;
         this.startTime = Date.now();
+        this.lastShot = 0;
+        this.respawnTimer = 0;
     };
+
     move = () => {
         if (controller.up) {
             this.velocity[1] = -1;
@@ -62,17 +69,32 @@ class Player extends Entity {
             this.velocity[0] = 0;
         }
 
-        if (this.validMove()) {
+        this.update();
+    };
+    
+    update() {
+        let check1 = this.validXMove();
+        let check2 = this.validYMove();
+
+        if (check1 && check2) {
+            this.x += (controller.shift? 0.6 : 1) * this.speed * this.velocity[0];
+            this.y += (controller.shift? 0.6 : 1) * this.speed * this.velocity[1];
+        }
+        else if (check1 || check2) {
             this.velocity = normalizeVector(this.velocity);
-            this.x += this.speed * this.velocity[0];
-            this.y += this.speed * this.velocity[1];
+            this.x += check1? (controller.shift? 0.6 : 1) * this.speed * this.velocity[0] : 0;
+            this.y += check2? (controller.shift? 0.6 : 1) * this.speed * this.velocity[1] : 0;
         }
     };
-    shoot = () => {
+
+    shoot() {
         let now = Date.now();
         if (controller.space && now - this.startTime > 250) {
-            player.bullets.push(new Bullet(player.x + (player.w / 2), player.y + player.h, 10, 15, 8, '/images/laserBlue16.png', player.friendly, [this.x, this.y], [this.x, -5]));
+            let bullet = new Bullet(player.x + (player.w / 2), player.y + player.h, this.friendly, [this.x, this.y], [this.x, -5]);
+            bullet.assignBehavior(ShotType.aimedShot);
             this.startTime = now;
+            return bullet;
         }
+        return null;
     };
 }
