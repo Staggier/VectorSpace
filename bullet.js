@@ -1,5 +1,5 @@
 class Bullet extends Entity {
-    constructor(x, y, friendly, startPoint, endPoint) {
+    constructor(x, y, friendly, startPoint, endPoint, movement) {
         super();
         this.x = x;
         this.y = y;
@@ -12,12 +12,8 @@ class Bullet extends Entity {
         this.endTime = this.startTime + 10;
         this.startPoint = [...startPoint];
         this.endPoint = [...endPoint];
-        this.update;
+        this.update = movement;
     }
-
-    assignBehavior(shotType) {
-        this.update = shotType;
-    };
     
     display() {
         let img = new Image(this.w, this.h);

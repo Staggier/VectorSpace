@@ -3,46 +3,61 @@ const framesPerSecond = 60;
 
 var score;
 var player;
+var waveCount;
 
-var entities;
-var bullets;
+var gameStartTime;
+
+var entities = [];
+var bullets = [];
+var powerups = [];
+
+var levels = [wave1, wave2, wave3];
+var wavetext = "";
 
 var loseSound = new Audio('./audio/sfx_lose.ogg');
-var soundtrack = new Audio('./audio/Six_Umbrellas_-_08_-_Stockholm.mp3');
+var inGameSoundtrack = new Audio('./audio/Six_Umbrellas_-_08_-_Stockholm.mp3');
 var playerHit = new Audio('./audio/sfx_twoTone.ogg');
+var victorySound = new Audio('./audio/zapsplat_multimedia_game_sound_digital_bright_positive_complete_55270.mp3');
+var played = false;
 
-soundtrack.onended = () => {
-    soundtrack.play();
+var lifeup = new Image(10, 10);
+lifeup.src = "./images/playerLife2_orange.png"
+
+var backgrounds;
+
+inGameSoundtrack.onended = () => {
+    inGameSoundtrack.play();
 }
 
 function setGame() {
     window.onkeydown = window.onkeyup = keyPress;
     canvas.onclick = () => {};
+    controller.space = false;
 
     score = 0;
+    waveCount = 0;
     player = new Player(400, 500);
 
-    var enemy1 = new Enemy(300, 100, 0, './images/enemyBlack1.png');
-    var enemy2 = new Enemy(100, 300, 6, './images/enemyBlack1.png');
-    var enemy3 = new Enemy(200, 200, 2, './images/enemyBlack1.png');
-
-    enemy1.setBehavior(300, 600, 100, 100, [1, 0], ShotType.waveShot);
-    enemy2.setBehavior(100, 400, 100, 400, [1, 0.25], ShotType.aimedShot);
-    enemy3.setBehavior(0, canvas.width, 0, 400, [0.5, 1], ShotType.spiralShot);
-
-    entities = [enemy1, enemy2, player];
+    entities = [player];
     bullets = [];
+    powerups = [];
+
+    played = false;
+    gameStartTime = Date.now();
+
+    setBackgrounds();
+
+    inGameSoundtrack.currentTime = 0;
+    inGameSoundtrack.play();
 }
 
 function animate() {
     setTimeout(() => {
         requestAnimationFrame(animate);
-        if (player.numLives != 0) {
-
-            context.clearRect(0, 0, canvas.width, canvas.height);          
-            let now = Date.now();
-
-            for (var i = 0; i < entities.length; i++) {
+        if (player.numLives > 0 && entities.length != 1) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            drawBackgrounds();
+            for (var i = 0; i < entities.length && wavetext == ""; i++) {
                 entities[i].move();
 
                 let bullet = entities[i].shoot();    
@@ -50,16 +65,12 @@ function animate() {
                     bullets.push(bullet);
                 }
 
-                if (!entities[i].friendly) {
-                    entities[i].display();
-                }
-                else if (entities[i].respawnTimer == entities[i].lastShot || now - entities[i].respawnTimer > 150) {
-                    entities[i].respawnTimer = now - entities[i].respawnTimer > 1500 ? entities[i].lastShot : now;
+                if (!entities[i].friendly || !entities[i].respawn) {
                     entities[i].display();
                 }
             }
 
-            for (var i = 0; i < bullets.length; i++) {
+            for (var i = 0; i < bullets.length && wavetext == ""; i++) {
                 if (onScreen(bullets[i].x, bullets[i].y, bullets[i].w, bullets[i].h)) {
                     bullets[i].update(bullets[i]);
                     bullets[i].display();
@@ -69,18 +80,47 @@ function animate() {
                 }
             }
 
-            for (var i = 0; i < bullets.length; i++) {
-                for (var j = 0; j < entities.length; j++) {
-                    if (isShot(bullets[i], entities[j])) {
-                        if (entities[j].friendly) {
-                            if (entities[j].numLives != 0) {
-                                entities[j].numLives -= 1;
+            for (var i = 0; i < bullets.length && wavetext == ""; i++) {
+                for (var j = 0; j < entities.length && wavetext == ""; j++) {
+                    if (typeof(bullets[i]) == typeof(undefined) || bullets[i].friendly == entities[j].friendly) {
+                        continue;
+                    }
 
+                    var entity;
+
+                    if (entities[j].friendly) {
+                        entity = new Entity(entities[j].x + 10, entities[j].y, '', true);
+                        entity.w = 1;
+                        entity.h = 1
+                    }
+                    else {
+                        entity = entities[j];
+                    }
+                    
+                    if (isColliding(bullets[i], entity)) {
+                        if (entities[j].friendly) {
+                            let now = Date.now();
+                            if (now - entities[j].lastHit > 1500) { 
+                                entities[j].numLives -= 1;       
+                                if (entities[j].numLives == 0) {
+                                    inGameSoundtrack.pause();
+                                    loseSound.play();
+                                }
+                                else {
+                                    playerHit.play();
+                                    entities[j].lastHit = now;
+                                    var repeat = setInterval(() => { player.respawn = !player.respawn }, 75);
+                                    setTimeout(() => {clearInterval(repeat); player.respawn = false;}, 1500);
+                                }
                             }
                         }
                         else {
+                            score += 25;
                             entities[j].healthPoints -= 1;
                             if (!entities[j].healthPoints) {
+                                if (Math.random() > 0.75) {
+                                    powerups.push(new PowerUp(entities[j].x, entities[j].y));               
+                                }
                                 entities.splice(j, 1);
                             }
                         }
@@ -88,9 +128,50 @@ function animate() {
                     }
                 }
             }
+
+            for (var i = 0; i < powerups.length && wavetext == ""; i++) {
+                powerups[i].update();
+
+                if (isColliding(powerups[i], player)) {
+                    powerups[i].apply()
+                    powerups.splice(i, 1);
+                }
+                else {
+                    powerups[i].display();
+                }
+            }
+
+            context.font = "100px myFont";
+            context.fillText(wavetext, 250, 250);
+   
+            context.font = "20px myFont";
+            context.fillStyle = "white";
+            context.fillText("Score: " + score, 1, 20);
+
+            context.fillText("Lives: ", 640, 20);
+            for (var i = 0; i < player.numLives; i++) {
+                context.drawImage(lifeup, 700 + (10 * (i + 1)), 0);
+            }
+        }
+        else if (player.numLives > 0) {
+            if (waveCount == levels.length) {
+                if (!played) {
+                    victorySound.play();
+                    score += 2000 * Math.pow(Math.E, -(((Date.now - gameStartTime) / 1000) | 0) / 500) | 0;
+                    played = true;
+                }
+                victory();
+            }
+            else {            
+                bullets = [];
+                wavetext = "WAVE " + (waveCount + 1);
+                entities = entities.concat(levels[waveCount]());
+                waveCount += 1;
+                player.respawn = false;
+                setTimeout(() => {wavetext = ""}, 1000);
+            }
         }
         else {
-            loseSound.play();
             gameOver();
         }
 
@@ -98,15 +179,12 @@ function animate() {
 }
 
 function game() {
-    soundtrack.play();
+    menuSoundtrack.pause();
     setGame();
     animate();
 }
 
-function gameOver() {
-    context.font = "100px myFont";
-    context.clearRect(0, 0, canvas.width, canvas.height);
-    context.fillText("GAME OVER", 100, 200);
+function replay() {
     context.fillText("PLAY AGAIN?", 70, 300);
 
     var buttonImg = new Image(222, 39);
@@ -131,4 +209,22 @@ function gameOver() {
             }
         }
     }
+}
+
+function gameOver() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "black";
+    context.font = "100px myFont";
+    context.fillStyle = "black";
+    context.fillText("GAME OVER", 100, 200);
+    replay();
+}
+
+function victory() {
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.fillStyle = "black";
+    context.font = "100px myFont";
+    context.fillText("YOU WIN!", 175, 100);
+    context.fillText("SCORE: " + score, 100, 200);
+    replay();
 }
