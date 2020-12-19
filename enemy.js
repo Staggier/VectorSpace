@@ -18,15 +18,17 @@ class Enemy extends Entity {
         this.yMin = 0;
         this.yMax = canvas.height;
         this.bulletBehavior;
+        this.shotDelay;
     };
 
-    setBehavior(x1, x2, y1, y2, velocity, shotType) {
+    setBehavior(x1, x2, y1, y2, shotDelay, velocity, movement) {
         this.xMin = x1;
         this.xMax = x2;
         this.yMin = y1;
         this.yMax = y2;
+        this.shotDelay = shotDelay;
         this.velocity = velocity;
-        this.bulletBehavior = shotType;
+        this.bulletBehavior = movement;
     }
 
     update() {
@@ -49,10 +51,8 @@ class Enemy extends Entity {
 
     shoot() {
         let now = Date.now();
-        if (now - this.startTime > 250) {
-            let bullet = new Bullet(this.x + (this.w / 2) - 2.5 | 0, this.y + this.h, this.friendly, [this.x + (this.w / 2) | 0, this.y + this.h], [player.x + (player.w / 2) | 0, player.y + (player.h / 2) | 0]);
-            bullet.assignBehavior(this.bulletBehavior);
-            
+        if (now - this.startTime > this.shotDelay) {
+            let bullet = new Bullet(this.x, this.y + 5, this.friendly, [this.x, this.y + 5], [player.x + 10, player.y + 10], this.bulletBehavior);
             this.startTime = now;
             return bullet;
         }

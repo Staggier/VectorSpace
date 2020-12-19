@@ -5,11 +5,21 @@ const credits = document.getElementById('credits');
 
 var buttons = titleScreen.querySelectorAll('button');
 
+var menuSoundtrack = new Audio('./audio/Six_Umbrellas_-_09_-_Joker.mp3');
+
+var backgroundImage = new Image(canvas.width, canvas.height);
+backgroundImage.src = './images/background.png';
+
+var backgrounds;
+
+menuSoundtrack.onended = () => {
+    menuSoundtrack.play();
+}
+
 function setTitleScreen() {
     $(document.getElementsByTagName('body')[0]).css({'cursor':'url(./images/cursor.png),auto'});
 
-    $(canvas).css({'animation':'slide 2s linear infinite'});
-    canvas.onanimationiteration = setX;
+    setBackgrounds();
 
     canvas.width = 500;
     canvas.height = 400;
@@ -18,26 +28,26 @@ function setTitleScreen() {
     credits.hidden = true;
     titleScreen.hidden = false;
 
+    menuSoundtrack.play();
+    inGameSoundtrack.pause();
+
     $('#btns').css({'display':'flex', 'flex-direction':'column','margin':'5% 25% 0 25%'});
+    titleScreenAnimation();
 }
-
-function setX() {
-    canvas.style.setProperty('--xPosition', Math.random() * 1024 | 0)
-};
-
 
 instructions.querySelector('button').addEventListener('click', () => {
     canvas.hidden = false;
     instructions.hidden = true;
     titleScreen.hidden = false;
+    setTitleScreen();
 });
 
 credits.querySelector('button').addEventListener('click', () => {
     canvas.hidden = false;
     credits.hidden = true;
     titleScreen.hidden = false;
+    setTitleScreen();
 });
-
 
 buttons[0].addEventListener('click', () => {    
     titleScreen.hidden = true;
@@ -53,7 +63,7 @@ buttons[1].addEventListener('click', (e) => {
     titleScreen.hidden = true;
     instructions.hidden = false;
 
-    $(instructions.querySelector('h2')).css({'margin':'10% 0 10% 0'});
+    $(instructions.querySelector('h2')).css({'margin':'10% 0 0 0'});
     $(instructions.querySelector('p')).css({'margin':'10% 0 9% 0'});
     $(instructions.querySelector('button')).css({'display':'block', 'margin':'auto', 'width':'50%'});
 });
@@ -63,9 +73,9 @@ buttons[2].addEventListener('click', () => {
     titleScreen.hidden = true;
     credits.hidden = false;
 
-    $(credits.querySelector('h2')).css({'margin':'10% 0 10%'});
-    $(credits.querySelector('p')).css({'margin':'10% 0 14.5% 0'});
-    $(credits.querySelector('button')).css({'width':'50%'});
+    $(credits.querySelector('h2')).css({'margin':'2% 0 2% 0'});
+    $(credits.querySelector('p')).css({'margin':'0 0 1% 0'});
+    $(credits.querySelector('button')).css({'width':'50%', 'margin':'1% 0 0 0'});
 })
 
 document.addEventListener('DOMContentLoaded', setTitleScreen);
